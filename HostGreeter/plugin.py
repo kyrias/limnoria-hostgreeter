@@ -93,6 +93,9 @@ class HostGreeter(callbacks.Plugin):
     def add(self, irc, msg, args, channel, hostmask, greeting):
         """<channel> <hostmask> <greeting>"""
 
+        if not ircdb.checkCapability(msg.prefix, 'admin'):
+            irc.errorNoCapability('admin', Raise=True)
+
         def predicate(entry):
             return entry.channel == channel and entry.hostmask == hostmask
 
@@ -107,6 +110,9 @@ class HostGreeter(callbacks.Plugin):
 
     def remove(self, irc, msg, args, channel, hostmask):
         """<channel> <hostmask>"""
+
+        if not ircdb.checkCapability(msg.prefix, 'admin'):
+            irc.errorNoCapability('admin', Raise=True)
 
         def predicate(entry):
             return entry.channel == channel and entry.hostmask == hostmask
