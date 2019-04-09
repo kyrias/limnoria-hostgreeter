@@ -82,7 +82,7 @@ class HostGreeter(callbacks.Plugin):
 
         def predicate(entry):
             return entry.channel == channel and \
-                    ircutils.hostmaskPatternEqual(entry.hostmask, hostmask)
+                    ircutils.hostmaskPatternEqual(hostmask, entry.hostmask)
 
         entries = [str(entry) for entry in self.db.select(predicate)]
         irc.reply(utils.str.commaAndify(entries))
