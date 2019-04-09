@@ -49,7 +49,7 @@ class DbiHostGreeterDB(dbi.DB):
 
     def add(self, channel, hostmask, greeting):
         return self.__parent.add(
-                self.Record(channel=channel, hostmask=hostmask, greeting=greeting))
+                self.Record(channel=channel.lower(), hostmask=hostmask, greeting=greeting))
 
 HostGreeterDB = plugins.DB('HostGreeter', {'flat': DbiHostGreeterDB})
 
@@ -71,6 +71,7 @@ class HostGreeter(callbacks.Plugin):
     def list(self, irc, msg, args, channel):
         """<channel>"""
 
+        channel = channel.lower()
         entries = [str(entry) for entry in self.db if entry.channel == channel]
         irc.reply(utils.str.commaAndify(entries))
 
@@ -80,6 +81,7 @@ class HostGreeter(callbacks.Plugin):
     def get(self, irc, msg, args, channel, hostmask):
         """<channel> <hostmask>"""
 
+        channel = channel.lower()
         def predicate(entry):
             return entry.channel == channel and \
                     ircutils.hostmaskPatternEqual(hostmask, entry.hostmask)
@@ -96,6 +98,7 @@ class HostGreeter(callbacks.Plugin):
         if not ircdb.checkCapability(msg.prefix, 'admin'):
             irc.errorNoCapability('admin', Raise=True)
 
+        channel = channel.lower()
         def predicate(entry):
             return entry.channel == channel and entry.hostmask == hostmask
 
@@ -114,6 +117,7 @@ class HostGreeter(callbacks.Plugin):
         if not ircdb.checkCapability(msg.prefix, 'admin'):
             irc.errorNoCapability('admin', Raise=True)
 
+        channel = channel.lower()
         def predicate(entry):
             return entry.channel == channel and entry.hostmask == hostmask
 
@@ -129,13 +133,20 @@ class HostGreeter(callbacks.Plugin):
 
 
     def doJoin(self, irc, msg):
+        self.log.debug('HostGreeter onJoin for {!r}'.format(msg.prefix))
+
+        channel = msg.args[0].lower()
         def predicate(entry):
-            return entry.channel == msg.args[0] and \
+            return entry.channel == channel and \
                     ircutils.hostmaskPatternEqual(entry.hostmask, msg.prefix)
         entry = next(self.db.select(predicate), None)
         if entry:
+            self.log.debug('HostGreeter found greeting {!r} for hostmask {!r}'
+                    .format(entry.greeting, msg.prefix))
             irc.reply(entry.greeting)
         else:
+            self.log.debug('HostGreeter found no greeting for hostmask {!r}'
+                    .format(msg.prefix))
             irc.noReply()
 
 
