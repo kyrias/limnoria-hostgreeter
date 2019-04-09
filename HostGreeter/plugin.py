@@ -94,8 +94,8 @@ class HostGreeter(callbacks.Plugin):
         """<channel> <hostmask> <greeting>"""
 
         def predicate(item):
-            return item.channel == channel and \
-                    ircutils.hostmaskPatternEqual(item.hostmask, hostmask)
+            return item.channel == channel and item.hostmask == hostmask
+
         for entry in self.db.select(predicate):
             self.db.remove(entry.id)
 
