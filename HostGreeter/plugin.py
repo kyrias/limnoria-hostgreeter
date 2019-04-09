@@ -80,8 +80,8 @@ class HostGreeter(callbacks.Plugin):
     def get(self, irc, msg, args, channel, hostmask):
         """<channel> <hostmask>"""
 
-        def predicate(item):
-            return item.channel == channel and \
+        def predicate(entry):
+            return entry.channel == channel and \
                     ircutils.hostmaskPatternEqual(entry.hostmask, hostmask)
 
         entries = [str(entry) for entry in self.db.select(predicate)]
@@ -93,8 +93,8 @@ class HostGreeter(callbacks.Plugin):
     def add(self, irc, msg, args, channel, hostmask, greeting):
         """<channel> <hostmask> <greeting>"""
 
-        def predicate(item):
-            return item.channel == channel and item.hostmask == hostmask
+        def predicate(entry):
+            return entry.channel == channel and entry.hostmask == hostmask
 
         for entry in self.db.select(predicate):
             self.db.remove(entry.id)
@@ -108,8 +108,8 @@ class HostGreeter(callbacks.Plugin):
     def remove(self, irc, msg, args, channel, hostmask):
         """<channel> <hostmask>"""
 
-        def predicate(item):
-            return item.channel == channel and item.hostmask == hostmask
+        def predicate(entry):
+            return entry.channel == channel and entry.hostmask == hostmask
 
         entry = next(self.db.select(predicate), None)
         if not entry:
@@ -122,9 +122,9 @@ class HostGreeter(callbacks.Plugin):
 
 
     def doJoin(self, irc, msg):
-        def predicate(item):
-            return item.channel == msg.args[0] and \
-                    ircutils.hostmaskPatternEqual(item.hostmask, msg.prefix)
+        def predicate(entry):
+            return entry.channel == msg.args[0] and \
+                    ircutils.hostmaskPatternEqual(entry.hostmask, msg.prefix)
         entry = next(self.db.select(predicate), None)
         if entry:
             irc.reply(entry.greeting)
