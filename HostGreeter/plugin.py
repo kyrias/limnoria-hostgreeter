@@ -113,7 +113,7 @@ class HostGreeter(callbacks.Plugin):
 
         entry = next(self.db.select(predicate), None)
         if not entry:
-            irc.replyError('No greeting with that hostmask found')
+            irc.reply('No greeting with that hostmask found')
             return
 
         self.db.remove(entry.id)
